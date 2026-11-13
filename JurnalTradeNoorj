@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jurnal Trading</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#eef1ec;--card:#fbfcfa;--tx:#1b2421;--mut:#5d6a64;--bd:#d3dbd4;--g:#1f7a55;--r:#b8412f;--ac:#2f4b7c;--gbg:#dcefe5;--rbg:#f6dfda;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111614;--card:#1a211e;--tx:#e6ece8;--mut:#93a39a;--bd:#2c3833;--g:#4fc38b;--r:#ef7b66;--ac:#8fb0ea;--gbg:#1b3a2d;--rbg:#40221c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111614;--card:#1a211e;--tx:#e6ece8;--mut:#93a39a;--bd:#2c3833;--g:#4fc38b;--r:#ef7b66;--ac:#8fb0ea;--gbg:#1b3a2d;--rbg:#40221c;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 "Public Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+h1{font-size:26px;margin:0;letter-spacing:-.4px}
+h2{font-size:17px;margin:0 0 10px}
+.sub{color:var(--mut);font-size:13px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:16px}
+.hero{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end}
+.big{font-size:40px;font-weight:700;letter-spacing:-1px;line-height:1.1}
+.pos{color:var(--g)}.neg{color:var(--r)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.k{border:1px solid var(--bd);border-radius:8px;padding:10px 12px;background:var(--bg)}
+.k b{display:block;font-size:18px}.k span{font-size:12px;color:var(--mut)}
+form{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:3px}
+input,select,textarea,button{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:8px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+.full{grid-column:1/-1}
+button{cursor:pointer;font-weight:600}
+button.p{background:var(--ac);border-color:var(--ac);color:#fff}
+button.s{font-size:12px;padding:4px 8px;font-weight:500}
+.chk{flex-direction:row;align-items:center;gap:8px;font-size:14px;color:var(--tx)}
+.chk input{width:18px;height:18px}
+.sc{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:600;color:var(--mut);font-size:12.5px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.two{grid-template-columns:1fr}.big{font-size:32px}}
+.tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;background:var(--gbg);color:var(--g)}
+.tag.l{background:var(--rbg);color:var(--r)}
+svg{width:100%;height:auto;display:block}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+textarea{width:100%;min-height:90px;font:12px/1.4 monospace}
+.empty{color:var(--mut);padding:14px 0}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><h1>Jurnal Trading</h1><div class="sub">Catat setiap trade, lihat angkanya, dan pantau apakah Anda makin baik.</div></div>
+  <div class="row"><label style="flex-direction:row;align-items:center;gap:6px">Modal awal <input id="start" type="number" step="any" style="width:120px"></label><button id="theme" class="s">Tema</button></div>
+</header>
+
+<section class="card hero" id="hero"></section>
+
+<section class="card"><h2>Indikator peningkatan</h2><div class="sub" id="impNote"></div><div class="sc" id="imp"></div></section>
+
+<section class="card"><h2>Ringkasan statistik</h2><div class="grid" id="stats"></div></section>
+
+<div class="two">
+  <section class="card"><h2>Kurva ekuitas</h2><div id="eq"></div></section>
+  <section class="card"><h2>Profit dan rugi per bulan</h2><div id="mon"></div></section>
+</div>
+
+<section class="card"><h2>Catat trade baru</h2>
+<form id="f">
+  <label>Tanggal<input name="date" type="date" required></label>
+  <label>Instrumen<select name="symbol" id="symSel"><option value="XAUUSD">XAUUSD (Emas)</option><option value="US100">US100 (USA 100 / Nasdaq)</option></select></label>
+  <label>Posisi<select name="side"><option>Buy</option><option>Sell</option></select></label>
+  <label>Harga masuk<input name="entry" type="number" step="any" required></label>
+  <label>Harga keluar<input name="exit" type="number" step="any" required></label>
+  <label>Lot<input name="qty" type="number" step="any" value="0.01" required></label>
+  <label>Ukuran kontrak per 1 lot<input name="cs" type="number" step="any" value="100" required></label>
+  <label>Stop loss (pips/poin)<input name="slp" type="number" step="any" placeholder="mis. 20"></label>
+  <label>Ukuran 1 pip/poin<input name="pip" type="number" step="any" value="0.1"></label>
+  <label>Hasil nominal (+/−)<input name="nom" type="number" step="any" placeholder="opsional, mis. 25 atau -10"></label>
+  <label>Komisi per lot (sekali, saat entry)<input name="com" type="number" step="any" value="0" placeholder="mis. 10"></label>
+  <label>Biaya (fee, swap)<input name="fee" type="number" step="any" value="0"></label>
+  <label>Strategi<select name="strat" id="stratSel"></select></label>
+  <label id="stratCL" hidden>Nama strategi lain<input name="stratc" placeholder="Tulis nama strategi"></label>
+  <label>Emosi<select name="emo"><option>Tenang</option><option>Percaya diri</option><option>Ragu</option><option>FOMO</option><option>Serakah</option><option>Takut</option><option>Balas dendam</option></select></label>
+  <label class="chk"><input name="plan" type="checkbox" checked> Sesuai rencana</label>
+  <label class="full">Catatan dan pelajaran<textarea name="note" style="min-height:60px;font:inherit"></textarea></label>
+  <div class="full sub" id="prev"></div>
+  <div class="full row"><button class="p" type="submit">Simpan trade</button><button type="button" id="demo">Muat data contoh</button><span class="sub" id="msg"></span></div>
+</form>
+<div class="sub" style="margin-top:8px">Pips dihitung dari selisih harga ÷ ukuran 1 pip (otomatis menyesuaikan nama instrumen, bisa diubah). R = hasil pips ÷ stop loss pips. Jika Hasil nominal diisi, angka itu dipakai sebagai profit atau rugi bersih (biaya dianggap sudah termasuk). Jika kosong, profit dihitung otomatis: (keluar − masuk) × lot × ukuran kontrak − biaya. Bawaan: XAUUSD 1 lot = 100 oz, 1 pip = 0,1; US100 1 lot = 1 kontrak, 1 poin = 1. Cek spesifikasi kontrak broker Anda dan ubah kalau berbeda.</div>
+</section>
+
+<div class="two">
+  <section class="card"><h2>Per strategi</h2><div class="sc" id="bs"></div></section>
+  <section class="card"><h2>Per emosi</h2><div class="sc" id="be"></div></section>
+  <section class="card"><h2>Per instrumen</h2><div class="sc" id="bi"></div></section>
+  <section class="card"><h2>Per hari</h2><div class="sc" id="bd"></div></section>
+</div>
+
+<section class="card"><h2>Riwayat trade</h2><div class="sc" id="log"></div></section>
+
+<section class="card"><h2>Cadangan data</h2>
+<div class="sub" style="margin-bottom:8px">Data tersimpan di browser ini saja. Salin teks cadangan untuk berjaga-jaga atau pindah perangkat.</div>
+<div class="row" style="margin-bottom:8px"><button id="exp">Tampilkan cadangan</button><button id="imp2">Pulihkan dari teks</button><button id="clr">Hapus semua data</button></div>
+<textarea id="bk" hidden></textarea>
+</section>
+</div>
+<script>
+var KEY="jurnal_trading_v1",S={trades:[],start:1000};
+function load(){try{var d=JSON.parse(localStorage.getItem(KEY)||"null");if(d&&d.trades){S=d}}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function fm(n,d){if(n==null||!isFinite(n))return "–";return (n<0?"−":"")+Math.abs(n).toLocaleString("id-ID",{maximumFractionDigits:d==null?2:d})}
+function sg(n){return n>0?"pos":n<0?"neg":""}
+function calc(t){var pip=t.pip||0.0001,dir=t.side==="Buy"?1:-1,pips=(t.exit-t.entry)*dir/pip,gross=(t.exit-t.entry)*dir*t.qty*(t.cs||1),slp=t.slp!=null?t.slp:(t.sl?Math.abs(t.entry-t.sl)/pip:0),pnl=typeof t.nom==="number"?t.nom:gross-(t.fee||0);return{gross:gross,pnl:pnl,pips:pips,slp:slp,r:slp?pips/slp:null}}
+function sorted(){return S.trades.slice().sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:a.id-b.id}).map(function(t){var c=calc(t);return Object.assign({},t,c)})}
+function stats(L){
+  var n=L.length,w=L.filter(function(t){return t.pnl>0}),l=L.filter(function(t){return t.pnl<0}),
+  gp=sum(w),gl=Math.abs(sum(l)),net=sum(L),aw=w.length?gp/w.length:0,al=l.length?gl/l.length:0,
+  wr=n?w.length/n:0,rs=L.filter(function(t){return t.r!=null}),
+  eq=S.start,pk=S.start,dd=0,ddp=0,cur=0,bw=0,bl=0,sw=0,sl=0;
+  L.forEach(function(t){eq+=t.pnl;if(eq>pk)pk=eq;var d=pk-eq;if(d>dd){dd=d;ddp=pk?d/pk:0}
+    if(t.pnl>0){sw++;sl=0}else if(t.pnl<0){sl++;sw=0}else{sw=0;sl=0}
+    bw=Math.max(bw,sw);bl=Math.max(bl,sl)});
+  cur=sw?sw:-sl;
+  return{n:n,wins:w.length,loss:l.length,wr:wr,net:net,gp:gp,gl:gl,pf:gl?gp/gl:(gp?Infinity:0),aw:aw,al:al,
+   payoff:al?aw/al:null,exp:n?net/n:0,best:n?Math.max.apply(null,L.map(function(t){return t.pnl})):0,
+   worst:n?Math.min.apply(null,L.map(function(t){return t.pnl})):0,dd:dd,ddp:ddp,bal:S.start+net,
+   ret:S.start?net/S.start:0,cur:cur,bw:bw,bl:bl,avgR:rs.length?sum(rs,"r")/rs.length:null,
+   disc:n?L.filter(function(t){return t.plan}).length/n:0,fees:L.reduce(function(a,t){return a+(t.fee||0)},0),pips:sum(L,"pips")}}
+function sum(a,k){return a.reduce(function(s,t){return s+(k?t[k]:t.pnl)},0)}
+function hero(s){
+  $("hero").innerHTML='<div><div class="sub">Saldo saat ini</div><div class="big">'+fm(s.bal)+'</div></div>'+
+  '<div><div class="sub">Net profit</div><div class="big '+sg(s.net)+'">'+fm(s.net)+'</div></div>'+
+  '<div><div class="sub">Return</div><div class="big '+sg(s.ret)+'">'+fm(s.ret*100,1)+'%</div></div>'+
+  '<div><div class="sub">Win rate</div><div class="big">'+fm(s.wr*100,1)+'%</div></div>'+
+  '<div><div class="sub">Total profit ('+s.wins+' menang)</div><div class="big pos">'+fm(s.gp)+'</div></div>'+
+  '<div><div class="sub">Total rugi ('+s.loss+' kalah)</div><div class="big neg">'+fm(-s.gl)+'</div></div>'+
+  '<div><div class="sub">Total pips bersih</div><div class="big '+sg(s.pips)+'">'+fm(s.pips,1)+'</div></div>'}
+function statGrid(s){
+  var it=[["Total trade",s.n],["Menang",s.wins],["Kalah",s.loss],["Win rate",fm(s.wr*100,1)+"%"],
+  ["Net profit",fm(s.net),sg(s.net)],["Total profit (nominal)",fm(s.gp),"pos"],["Total rugi (nominal)",fm(-s.gl),s.gl?"neg":""],["Total pips bersih",fm(s.pips,1),sg(s.pips)],["Rata-rata pips / trade",fm(s.n?s.pips/s.n:0,1),sg(s.pips)],
+  ["Profit factor",s.pf===Infinity?"∞":fm(s.pf)],["Expectancy / trade",fm(s.exp),sg(s.exp)],
+  ["Rata-rata menang",fm(s.aw),"pos"],["Rata-rata kalah",fm(-s.al),s.al?"neg":""],["Rasio menang:kalah",fm(s.payoff)],
+  ["Trade terbaik",fm(s.best),"pos"],["Trade terburuk",fm(s.worst),"neg"],
+  ["Drawdown maks",fm(s.dd)+" ("+fm(s.ddp*100,1)+"%)","neg"],["Rata-rata R",s.avgR==null?"–":fm(s.avgR)+"R"],
+  ["Streak sekarang",s.cur>0?s.cur+" menang":s.cur<0?(-s.cur)+" kalah":"–"],["Menang beruntun terpanjang",s.bw],
+  ["Kalah beruntun terpanjang",s.bl],["Disiplin (sesuai rencana)",fm(s.disc*100,0)+"%"],["Total biaya",fm(s.fees)]];
+  $("stats").innerHTML=it.map(function(x){return '<div class="k"><span>'+x[0]+'</span><b class="'+(x[2]||"")+'">'+x[1]+'</b></div>'}).join("")}
+function improve(L){
+  var el=$("imp"),nt=$("impNote");
+  if(L.length<6){nt.textContent="Butuh minimal 6 trade untuk membandingkan periode.";el.innerHTML="";return}
+  var n=Math.min(10,Math.floor(L.length/2)),rc=stats2(L.slice(-n)),pv=stats2(L.slice(-2*n,-n));
+  nt.textContent="Membandingkan "+n+" trade terakhir dengan "+n+" trade sebelumnya.";
+  var rows=[["Win rate (%)",pv.wr*100,rc.wr*100,1],["Rata-rata profit / trade",pv.exp,rc.exp,1],["Profit factor",pv.pf,rc.pf,1],
+   ["Disiplin sesuai rencana (%)",pv.disc*100,rc.disc*100,1],["Rata-rata R",pv.avgR,rc.avgR,1],["Rata-rata kerugian",pv.al,rc.al,-1]];
+  el.innerHTML='<table><tr><th>Metrik</th><th>Sebelumnya</th><th>Terakhir</th><th>Perubahan</th></tr>'+rows.map(function(r){
+    var a=r[1],b=r[2],ok=a!=null&&b!=null&&isFinite(a)&&isFinite(b),d=ok?b-a:0,good=d*r[3]>0,bad=d*r[3]<0;
+    return '<tr><td>'+r[0]+'</td><td>'+fm(a)+'</td><td>'+fm(b)+'</td><td>'+(ok?'<span class="tag '+(bad?"l":"")+'">'+(d>0?"▲ ":d<0?"▼ ":"= ")+fm(Math.abs(d))+(good?" membaik":bad?" memburuk":"")+'</span>':"–")+'</td></tr>'}).join("")+'</table>'}
+function stats2(L){var s=stats(L);return s}
+function eqChart(L){
+  if(!L.length){$("eq").innerHTML='<div class="empty">Belum ada data.</div>';return}
+  var pts=[S.start],e=S.start;L.forEach(function(t){e+=t.pnl;pts.push(e)});
+  var mn=Math.min.apply(null,pts),mx=Math.max.apply(null,pts),W=600,H=220,p=28,rg=(mx-mn)||1;
+  var X=function(i){return p+i*(W-2*p)/Math.max(1,pts.length-1)},Y=function(v){return H-p-(v-mn)/rg*(H-2*p)};
+  var d=pts.map(function(v,i){return (i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)}).join(" ");
+  var up=pts[pts.length-1]>=S.start,c=up?"var(--g)":"var(--r)";
+  $("eq").innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Kurva ekuitas"><line x1="'+p+'" x2="'+(W-p)+'" y1="'+Y(S.start)+'" y2="'+Y(S.start)+'" stroke="var(--bd)" stroke-dasharray="4 4"/><path d="'+d+' L'+X(pts.length-1)+' '+(H-p)+' L'+X(0)+' '+(H-p)+'Z" fill="'+c+'" opacity=".12"/><path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="2.5"/><text x="'+p+'" y="14" font-size="11" fill="var(--mut)">tertinggi '+fm(mx)+'</text><text x="'+p+'" y="'+(H-6)+'" font-size="11" fill="var(--mut)">terendah '+fm(mn)+'</text></svg>'}
+function monChart(L){
+  var m={};L.forEach(function(t){var k=t.date.slice(0,7);m[k]=(m[k]||0)+t.pnl});
+  var ks=Object.keys(m).sort();if(!ks.length){$("mon").innerHTML='<div class="empty">Belum ada data.</div>';return}
+  var vs=ks.map(function(k){return m[k]}),mx=Math.max.apply(null,vs.concat(0)),mn=Math.min.apply(null,vs.concat(0)),rg=(mx-mn)||1,W=600,H=220,p=28,bw=Math.min(50,(W-2*p)/ks.length-8),Y=function(v){return p+(mx-v)/rg*(H-2*p-14)};
+  var o='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Profit per bulan"><line x1="'+p+'" x2="'+(W-p)+'" y1="'+Y(0)+'" y2="'+Y(0)+'" stroke="var(--bd)"/>';
+  ks.forEach(function(k,i){var v=m[k],x=p+i*(W-2*p)/ks.length+((W-2*p)/ks.length-bw)/2,y=Y(Math.max(v,0)),h=Math.max(2,Math.abs(Y(v)-Y(0)));
+    o+='<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="2" fill="'+(v>=0?"var(--g)":"var(--r)")+'"/><text x="'+(x+bw/2)+'" y="'+(H-6)+'" font-size="10.5" fill="var(--mut)" text-anchor="middle">'+k.slice(2)+'</text><text x="'+(x+bw/2)+'" y="'+(v>=0?y-4:y+h+11)+'" font-size="10.5" fill="var(--tx)" text-anchor="middle">'+fm(v,0)+'</text>'});
+  $("mon").innerHTML=o+'</svg>'}
+var DAY=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+function group(id,L,fn,ord){
+  var g={};L.forEach(function(t){var k=fn(t)||"(kosong)";(g[k]=g[k]||[]).push(t)});
+  var ks=Object.keys(g);ks.sort(ord?function(a,b){return DAY.indexOf(a)-DAY.indexOf(b)}:function(a,b){return sum(g[b])-sum(g[a])});
+  $(id).innerHTML=ks.length?'<table><tr><th>Nama</th><th>Trade</th><th>Win rate</th><th>Net profit</th><th>Rata-rata</th></tr>'+ks.map(function(k){var a=g[k],p=sum(a);
+    return '<tr><td>'+esc(k)+'</td><td>'+a.length+'</td><td>'+fm(a.filter(function(t){return t.pnl>0}).length/a.length*100,0)+'%</td><td class="'+sg(p)+'">'+fm(p)+'</td><td class="'+sg(p)+'">'+fm(p/a.length)+'</td></tr>'}).join("")+'</table>':'<div class="empty">Belum ada data.</div>'}
+function logT(L){
+  $("log").innerHTML=L.length?'<table><tr><th>Tanggal</th><th>Instrumen</th><th>Posisi</th><th>Masuk</th><th>Keluar</th><th>Lot</th><th>SL pips</th><th>Hasil pips</th><th>Profit / rugi</th><th>R</th><th>Strategi</th><th>Emosi</th><th>Rencana</th><th>Catatan</th><th></th></tr>'+
+   L.slice().reverse().map(function(t){return '<tr><td>'+t.date+'</td><td>'+esc(t.symbol)+'</td><td>'+t.side+'</td><td>'+fm(t.entry,5)+'</td><td>'+fm(t.exit,5)+'</td><td>'+fm(t.qty,4)+'</td><td>'+(t.slp?fm(t.slp,1):"–")+'</td><td class="'+sg(t.pips)+'">'+fm(t.pips,1)+'</td><td class="'+sg(t.pnl)+'">'+fm(t.pnl)+'</td><td>'+(t.r==null?"–":fm(t.r)+"R")+'</td><td>'+esc(t.strat)+'</td><td>'+esc(t.emo)+'</td><td>'+(t.plan?"Ya":"Tidak")+'</td><td style="white-space:normal;min-width:140px;text-align:left">'+esc(t.note)+'</td><td><button class="s" data-del="'+t.id+'">Hapus</button></td></tr>'}).join("")+'</table>':'<div class="empty">Belum ada trade. Isi formulir di atas atau muat data contoh.</div>'}
+function render(){
+  var L=sorted(),s=stats(L);hero(s);statGrid(s);improve(L);eqChart(L);monChart(L);
+  group("bs",L,function(t){return t.strat});group("be",L,function(t){return t.emo});group("bi",L,function(t){return t.symbol.toUpperCase()});
+  group("bd",L,function(t){return DAY[new Date(t.date+"T00:00:00").getDay()]},true);logT(L)}
+$("start").value=""; load(); $("start").value=S.start;
+$("start").addEventListener("input",function(){S.start=parseFloat(this.value)||0;save();render()});
+$("f").date.value=new Date().toISOString().slice(0,10);
+$("f").addEventListener("submit",function(e){e.preventDefault();var f=e.target,g=function(n){return f[n].value};
+  S.trades.push({id:Date.now(),date:g("date"),symbol:g("symbol").trim(),side:g("side"),entry:+g("entry"),exit:+g("exit"),qty:+g("qty"),cs:+g("cs")||1,slp:g("slp")?+g("slp"):0,pip:+g("pip")||0.0001,nom:g("nom")!==""?+g("nom"):null,fee:Math.round(((+g("fee")||0)+(+g("com")||0)*(+g("qty")||0))*1e4)/1e4,strat:(g("strat")==="__x"?g("stratc").trim():g("strat")),emo:g("emo"),plan:f.plan.checked,note:g("note").trim()});
+  save();render();["entry","exit","slp","nom","note"].forEach(function(n){f[n].value=""});prev();$("msg").textContent="Trade tersimpan."});
+$("log").addEventListener("click",function(e){var id=e.target.getAttribute("data-del");if(id){S.trades=S.trades.filter(function(t){return t.id!=id});save();render()}});
+$("demo").addEventListener("click",function(){
+  var seed=7,rnd=function(){seed=(seed*9301+49297)%233280;return seed/233280},sy=["XAUUSD","US100"],st=["Breakout","SMC","ICT"],em=["Tenang","Percaya diri","FOMO","Ragu","Serakah"],d=new Date();d.setDate(d.getDate()-60);
+  for(var i=0;i<30;i++){d.setDate(d.getDate()+1+Math.floor(rnd()*2));var imp=i/30,win=rnd()<0.38+imp*0.3,en=100,sl=1,mv=win?(0.8+rnd()*1.8):-(0.6+rnd()*0.5),side=rnd()<.5?"Buy":"Sell";
+    S.trades.push({id:Date.now()+i,date:d.toISOString().slice(0,10),symbol:sy[Math.floor(rnd()*2)],side:side,entry:en,exit:en+(side==="Buy"?mv:-mv),qty:0.1,cs:100,slp:10,pip:0.1,fee:1,strat:st[Math.floor(rnd()*3)],emo:em[Math.floor(rnd()*5)],plan:rnd()<0.5+imp*0.4,note:""})}
+  save();render();$("msg").textContent="Data contoh dimuat."});
+$("exp").addEventListener("click",function(){var b=$("bk");b.hidden=false;b.value=JSON.stringify(S);b.select()});
+$("imp2").addEventListener("click",function(){var b=$("bk");if(b.hidden){b.hidden=false;b.value="";b.placeholder="Tempel teks cadangan di sini, lalu klik Pulihkan lagi.";return}
+  try{var d=JSON.parse(b.value);if(!d.trades)throw 0;S=d;save();$("start").value=S.start;render();b.hidden=true}catch(e){b.value="";b.placeholder="Teks cadangan tidak valid. Tempel ulang."}});
+var STR={"Smart Money dan ICT":["ICT (Inner Circle Trader)","SMC (Smart Money Concept)","SMNR","Order Block","Fair Value Gap (FVG)","Liquidity Sweep","Breaker Block","Market Structure Shift (MSS)","Break of Structure (BOS)","Change of Character (CHoCH)","Silver Bullet","Judas Swing","Power of 3 (AMD)","Optimal Trade Entry (OTE)","Kill Zone","Premium Discount","Wyckoff","Supply and Demand","SnR (Support Resistance)"],
+"Price action":["Price Action","Breakout","Pullback","Reversal","Retest","Trend Following","Counter Trend","Range Trading","Candlestick Pattern","Pin Bar","Engulfing","Inside Bar","Trendline","Gap Trading","Opening Range Breakout","Dow Theory"],
+"Pola chart":["Double Top / Bottom","Head and Shoulders","Triangle","Flag dan Pennant","Wedge","Cup and Handle","Channel"],
+"Indikator":["Moving Average Crossover","RSI Divergence","MACD","Bollinger Bands","Stochastic","Ichimoku","Parabolic SAR","ADX","Fibonacci","Pivot Points","VWAP","Volume Profile","Heikin Ashi","Supertrend"],
+"Pola lanjutan":["Elliott Wave","Harmonic Pattern","Gann","Market Profile","Order Flow"],
+"Gaya trading":["Scalping","Day Trading","Swing Trading","Position Trading","News Trading","Momentum","Mean Reversion","Grid","Hedging","Carry Trade","Copy Trading","Algo / Robot (EA)"]};
+(function(){var o='<option value="">(tanpa strategi)</option>';Object.keys(STR).forEach(function(g){o+='<optgroup label="'+g+'">'+STR[g].map(function(x){return '<option>'+x+'</option>'}).join("")+'</optgroup>'});o+='<option value="__x">Lainnya (ketik sendiri)</option>';$("stratSel").innerHTML=o})();
+$("stratSel").addEventListener("change",function(){$("stratCL").hidden=this.value!=="__x"});
+function prev(){var f=$("f"),q=+f.qty.value,cs=+f.cs.value||1,pip=+f.pip.value||1,dir=f.side.value==="Buy"?1:-1,vp=pip*q*cs,t="Nilai 1 pip/poin = "+fm(vp,4)+" untuk "+fm(q,4)+" lot.";
+  if(f.entry.value!==""&&f.exit.value!==""){var pips=(+f.exit.value-+f.entry.value)*dir/pip,pnl=f.nom.value!==""?+f.nom.value:pips*vp-((+f.fee.value||0)+(+f.com.value||0)*q);t+=" Perkiraan hasil: "+fm(pips,1)+" pips = "+fm(pnl)+"."}
+  $("prev").textContent=t}
+$("f").symbol.addEventListener("change",function(){var x=this.value==="US100";$("f").pip.value=x?1:0.1;$("f").cs.value=x?1:100;prev()});
+$("f").addEventListener("input",prev);prev();
+var armed=false;$("clr").addEventListener("click",function(){if(!armed){armed=true;this.textContent="Klik lagi untuk menghapus semua";return}S.trades=[];save();render();armed=false;this.textContent="Hapus semua data"});
+$("theme").addEventListener("click",function(){var r=document.documentElement,dk=r.getAttribute("data-theme")==="dark"||(!r.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme: dark)").matches);r.setAttribute("data-theme",dk?"light":"dark")});
+render();
+</script>
+</body>
+</html>
